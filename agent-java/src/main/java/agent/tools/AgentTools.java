@@ -3,6 +3,7 @@ package agent.tools;
 import agent.browser.BrowserManager;
 import agent.browser.DomSnapshotter;
 import agent.core.AgentProperties;
+import agent.git.TestRepositoryManager;
 import agent.model.TestResult;
 import agent.runner.TestCompiler;
 import agent.runner.TestExecutor;
@@ -10,22 +11,36 @@ import com.embabel.agent.api.annotation.LlmTool;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.platform.launcher.listeners.TestExecutionSummary;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @Scope("prototype")
-@RequiredArgsConstructor
 public class AgentTools {
 
   private final TestCompiler testCompiler;
   private final TestExecutor testExecutor;
   private final BrowserManager browserManager;
   private final AgentProperties agentProperties;
+  private final TestRepositoryManager testRepositoryManager;
+
+  @Autowired
+  public AgentTools(
+      TestCompiler testCompiler,
+      TestExecutor testExecutor,
+      BrowserManager browserManager,
+      AgentProperties agentProperties,
+      @Autowired(required = false) TestRepositoryManager testRepositoryManager) {
+    this.testCompiler = testCompiler;
+    this.testExecutor = testExecutor;
+    this.browserManager = browserManager;
+    this.agentProperties = agentProperties;
+    this.testRepositoryManager = testRepositoryManager;
+  }
 
   @LlmTool(description = "Navigates to a URL and returns a DOM snapshot of the page.")
   public String getPageSnapshot(String url) throws Exception {
@@ -94,15 +109,32 @@ public class AgentTools {
     }
   }
 
-  @LlmTool(description = "Saves the successful generated test code to a file.")
-  public void saveGeneratedTest(String testCase, String testCode) throws Exception {
+  @LlmTool(description = "Saves the successful generated test code to a file and optionally pushes to Git repository.")
+  public String saveGeneratedTest(String testCase, String testCode) throws Exception {
     String sanitizedFileName = testCase.replaceAll("[^a-zA-Z0-9]", "_") + "Test.java";
+    
+    // 1. Always save locally
     File outputDir = new File(agentProperties.getTestOutputDir());
     if (!outputDir.exists()) {
       outputDir.mkdirs();
     }
     Files.writeString(Paths.get(outputDir.getAbsolutePath(), sanitizedFileName), testCode);
-    log.info("Test persisted to: {}", sanitizedFileName);
+    log.info("Test persisted locally to: {}", sanitizedFileName);
+    
+    // 2. If Git enabled, push to repository and create PR
+    String prUrl = null;
+    if (testRepositoryManager != null && agentProperties.getGit().isEnabled()) {
+      try {
+        prUrl = testRepositoryManager.saveTestToRepository(testCase, testCode);
+        if (prUrl != null) {
+          log.info("Test pushed to Git repository. PR: {}", prUrl);
+        }
+      } catch (Exception e) {
+        log.warn("Failed to push test to Git repository: {}", e.getMessage());
+      }
+    }
+    
+    return prUrl != null ? prUrl : sanitizedFileName;
   }
 
   @LlmTool(description = "Mocks an API response for a given URL pattern. Example: urlPattern='**/api/user', jsonBody='{\"name\": \"Mock User\"}'")

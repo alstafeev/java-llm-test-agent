@@ -4,7 +4,7 @@
 
 **AI-powered agent for generating UI automated tests from TMS test cases.**
 
-Uses LLM to analyze DOM and screenshots, execute browser actions step-by-step, and generate ready-to-run Playwright tests in Java or TypeScript.
+Uses LLM to analyze DOM and screenshots, execute browser actions step-by-step, and generate ready-to-run Playwright tests. Supports automatic Git integration for committing tests and creating Pull Requests.
 
 ## Features
 
@@ -13,6 +13,8 @@ Uses LLM to analyze DOM and screenshots, execute browser actions step-by-step, a
 - 🧠 **LLM-powered**: Leverages OpenAI, Gemini, or Ollama for intelligent test generation
 - 🔗 **TMS integration**: Fetches test cases from Allure TestOps
 - 🌐 **n8n compatible**: REST API for workflow automation
+- 📚 **Context-aware**: Uses existing tests as examples for consistent code style
+- 🔀 **Git integration**: Auto-commit, push, and create PRs for generated tests
 - ☕ **Java tests**: JUnit 5 + Playwright Java
 - 📜 **TypeScript tests**: Playwright Test (coming soon)
 
@@ -31,19 +33,22 @@ sequenceDiagram
     participant Agent as StepByStepOrchestrator
     participant LLM as LLM (OpenAI/Gemini/Ollama)
     participant Browser as Playwright
+    participant Git as Git/GitHub
     
     TMS->>Agent: TestCase (steps[])
     Agent->>Browser: Open start URL
     
     loop Each Step
         Browser->>Agent: DOM + Screenshot
-        Agent->>LLM: Analyze step
+        Agent->>LLM: Analyze step + existing tests context
         LLM->>Agent: PlaywrightInstruction
         Agent->>Browser: Execute instruction
     end
     
     Agent->>LLM: Generate final test code
     LLM->>Agent: GeneratedTest.java
+    Agent->>Git: Create branch, commit, push
+    Git->>Git: Create Pull Request
 ```
 
 ## Quick Start
@@ -93,18 +98,42 @@ curl -X POST http://localhost:8080/api/v1/test-agent/generate \
   -d '{"title":"Login Test","steps":["Click login","Enter username"],"url":"https://example.com"}'
 ```
 
-#### n8n Integration
-Configure HTTP Request node:
-- **URL**: `http://your-server:8080/api/v1/test-agent/webhook/n8n`
-- **Method**: POST
-- **Body**:
-```json
-{
-  "title": "Test from n8n",
-  "steps": ["Click login button", "Enter username admin"],
-  "url": "https://target-site.com"
-}
+## Git Integration
+
+Generated tests can be automatically pushed to a Git repository and create Pull Requests for review.
+
+### Configuration
+
+```yaml
+agent:
+  git:
+    enabled: true
+    repo-url: git@github.com:company/ui-tests.git
+    base-branch: main
+    test-path: src/test/java/generated
+    create-pr: true
+    pr-reviewers: john,jane
+    local-repo-dir: target/test-repo
+  github:
+    api-url: https://api.github.com        # or corporate: https://git.adsrv.wtf/api/v3
+    token: ${GITHUB_TOKEN}
 ```
+
+### Workflow
+
+1. Test saved locally to `agent.test-output-dir`
+2. Test repository cloned/pulled
+3. New branch created: `test/{test-name}`
+4. Commit and push
+5. Pull Request created with reviewers
+
+## Existing Tests Context
+
+The agent analyzes existing tests in the repository to generate new tests with consistent style:
+
+- Loads up to 3 recent tests as examples
+- Includes them in the LLM prompt as reference
+- New tests follow the same patterns, imports, and structure
 
 ## Modules
 
@@ -123,14 +152,20 @@ Configure HTTP Request node:
 | `/api/v1/test-agent/analyze` | POST | Analyze steps (dry run) |
 | `/api/v1/test-agent/webhook/n8n` | POST | n8n-compatible webhook |
 
-## Configuration
+## Configuration Reference
 
 | Property | Description | Default |
 |----------|-------------|---------|
 | `agent.url` | Target website URL | `https://example.com` |
+| `agent.test-output-dir` | Local test output directory | `src/test/java/generated` |
 | `agent.browser.headless` | Run browser headless | `true` |
 | `agent.browser.timeout` | Browser timeout (ms) | `30000` |
-| `agent.max-repair-attempts` | Self-repair retry limit | `3` |
+| `agent.git.enabled` | Enable Git integration | `false` |
+| `agent.git.repo-url` | Test repository URL | - |
+| `agent.git.base-branch` | Base branch for PRs | `main` |
+| `agent.git.create-pr` | Create PR after push | `true` |
+| `agent.github.api-url` | GitHub API URL | `https://api.github.com` |
+| `agent.github.token` | GitHub PAT | `${GITHUB_TOKEN}` |
 | `agent.allure.project` | Allure TestOps project ID | - |
 | `agent.allure.rql` | Allure RQL filter | - |
 

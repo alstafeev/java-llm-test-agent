@@ -1,5 +1,6 @@
 package agent.service;
 
+import agent.context.TestContextProvider;
 import agent.core.AgentProperties;
 import agent.model.TestCase;
 import agent.model.TestResult;
@@ -24,6 +25,9 @@ public class TestRepairAgent {
   @Autowired
   private AgentProperties agentProperties;
 
+  @Autowired(required = false)
+  private TestContextProvider testContextProvider;
+
   public AgentTools getTools() {
     return tools;
   }
@@ -35,6 +39,15 @@ public class TestRepairAgent {
     StringBuilder stepsFormatted = new StringBuilder();
     for (int i = 0; i < testCase.steps().size(); i++) {
       stepsFormatted.append(i + 1).append(". ").append(testCase.steps().get(i)).append("\n");
+    }
+
+    // Get existing tests context for consistent style
+    String existingTestsContext = "";
+    if (testContextProvider != null) {
+      existingTestsContext = testContextProvider.getExistingTestsContext(3);
+      if (!existingTestsContext.isEmpty()) {
+        log.info("Including existing tests as context for generation");
+      }
     }
 
     String prompt =
@@ -52,7 +65,9 @@ public class TestRepairAgent {
             + "6. For 'click' steps, find the element in the provided DOM and use appropriate locators (id, text, css, etc.).\n"
             + "7. For 'expected new tab or window' steps, use the context.waitForPage() pattern to capture the new page.\n"
             + "8. Ensure the code is robust and handles wait times appropriately.\n"
-            + "9. Provide ONLY the Java source code, no markdown formatting.";
+            + "9. Provide ONLY the Java source code, no markdown formatting.\n"
+            + "10. IMPORTANT: Follow the coding style and patterns shown in the existing tests below."
+            + existingTestsContext;
 
     if (agentProperties.getDebug().isShowPrompts()) {
       log.info("LLM Generation Prompt:\n{}", prompt);
