@@ -34,7 +34,7 @@ import org.springframework.stereotype.Service;
  * Service for GitHub API operations.
  * Handles Pull Request creation and reviewer assignment.
  * 
- * Supports both github.com and GitHub Enterprise (e.g., git.adsrv.wtf).
+ * Supports both github.com and GitHub Enterprise (e.g., git.your.company).
  */
 @Slf4j
 @Service

@@ -115,7 +115,7 @@ public class AgentProperties {
   public static class GitHub {
     /**
      * GitHub API URL. Default is public GitHub.
-     * For GitHub Enterprise: https://git.adsrv.wtf/api/v3
+     * For GitHub Enterprise: https://git.your.company/api/v3
      */
     private String apiUrl = "https://api.github.com";
     /**

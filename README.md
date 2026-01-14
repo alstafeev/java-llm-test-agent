@@ -115,7 +115,7 @@ agent:
     pr-reviewers: john,jane
     local-repo-dir: target/test-repo
   github:
-    api-url: https://api.github.com        # or corporate: https://git.adsrv.wtf/api/v3
+    api-url: https://api.github.com        # or corporate: https://git.your.company/api/v3
     token: ${GITHUB_TOKEN}
 ```
 
