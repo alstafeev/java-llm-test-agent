@@ -1,151 +1,145 @@
-<img align="left" src="https://github.com/embabel/embabel-agent/blob/main/embabel-agent-api/images/315px-Meister_der_Weltenchronik_001.jpg?raw=true" width="180">
+# LLM Test Agent
 
-# Generated Agent Project
+![Build](https://github.com/alstafeev/llm-test-agent/actions/workflows/maven.yml/badge.svg)
 
-![Build](https://github.com/embabel/java-agent-template/actions/workflows/maven.yml/badge.svg)
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white) ![Playwright](https://img.shields.io/badge/Playwright-45ba4b?style=for-the-badge&logo=Playwright&logoColor=white) ![ChatGPT](https://img.shields.io/badge/chatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
 
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white) ![Apache Maven](https://img.shields.io/badge/Apache%20Maven-C71A36?style=for-the-badge&logo=Apache%20Maven&logoColor=white) ![ChatGPT](https://img.shields.io/badge/chatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
+**AI-powered agent for generating UI automated tests from TMS test cases.**
 
-<br clear="left"/>
+Uses LLM to analyze DOM and screenshots, execute browser actions step-by-step, and generate ready-to-run Playwright tests in Java or TypeScript.
 
-Starting point for your own agent development using the [Embabel framework](https://github.com/embabel/embabel-agent).
+## Features
 
-Uses Spring Boot 3.5.9 and Embabel 0.3.1.
+- 🔄 **Step-by-step execution**: Each test step is analyzed and executed individually
+- 📸 **Visual analysis**: Uses DOM snapshots and screenshots for accurate locator generation
+- 🧠 **LLM-powered**: Leverages OpenAI, Gemini, or Ollama for intelligent test generation
+- 🔗 **TMS integration**: Fetches test cases from Allure TestOps
+- 🌐 **n8n compatible**: REST API for workflow automation
+- ☕ **Java tests**: JUnit 5 + Playwright Java
+- 📜 **TypeScript tests**: Playwright Test (coming soon)
 
-Add your magic here!
+## Architecture
 
-Illustrates:
+```
+llm-test-agent/
+├── agent-core/          # Shared components (browser, models, TMS clients)
+├── agent-java/          # Java JUnit 5 Playwright test generator
+└── agent-typescript/    # TypeScript Playwright test generator (WIP)
+```
 
-- An injected demo showing how any Spring component can be injected with an Embabel `Ai` instance to enable it to
-  perform LLM operations.
-- A simple agent
-- Unit tests for an agent verifying prompts and hyperparameters
+```mermaid
+sequenceDiagram
+    participant TMS as Allure TestOps
+    participant Agent as StepByStepOrchestrator
+    participant LLM as LLM (OpenAI/Gemini/Ollama)
+    participant Browser as Playwright
+    
+    TMS->>Agent: TestCase (steps[])
+    Agent->>Browser: Open start URL
+    
+    loop Each Step
+        Browser->>Agent: DOM + Screenshot
+        Agent->>LLM: Analyze step
+        LLM->>Agent: PlaywrightInstruction
+        Agent->>Browser: Execute instruction
+    end
+    
+    Agent->>LLM: Generate final test code
+    LLM->>Agent: GeneratedTest.java
+```
 
-> For the Kotlin equivalent, see
-> our [Kotlin agent template](https://github.com/embabel/kotlin-agent-template).
+## Quick Start
 
-# Running
+### Prerequisites
 
-Run the shell script to start Embabel under Spring Shell:
+- Java 21+
+- Maven 3.9+
+- LLM API key (OpenAI, Gemini, or local Ollama)
+
+### Installation
 
 ```bash
-./scripts/shell.sh
+git clone https://github.com/alstafeev/llm-test-agent.git
+cd llm-test-agent
+mvn install
 ```
 
-There is a single example
-agent, [WriteAndReviewAgent](example-agent/src/main/java/com/embabel/template/agent/WriteAndReviewAgent.java).
-It uses one LLM with a high temperature and creative persona to write a story based on your input,
-then another LLM with a low temperature and different persona to review the story.
+### Configuration
 
-When the Embabel shell comes up, invoke the story agent like this:
-
-```
-x "Tell me a story about...[your topic]"
-```
-
-Try the following other shell commands:
-
-- `demo`: Runs the same agent, invoked programmatically, instead of dynamically based on user input.
-  See [DemoCommands.java](example-agent/src/main/java/com/embabel/template/DemoShell.java) for the
-  implementation.
-- `animal`:  Runs a simple demo using an Embabel injected `Ai` instance to call an LLM.
-  See [InjectedDemo](example-agent/src/main/java/com/embabel/template/injected/InjectedDemo.java).
-
-## Suggested Next Steps
-
-To get a feel for working with Embabel, try the following:
-
-- Modify the prompts in `WriteAndReviewAgent` and `InjectedDemo`.
-- Experiment with different models and hyperparameters by modifying `withLlm` calls.
-- Integrate your own services, injecting them with Spring. All Embabel `@Agent` classes are Spring beans.
-- Run the tests with `mvn test` and modify them to experiment with prompt verification.
-
-To see tool support, check out the more
-complex [Embabel Agent API Examples](https://github.com/embabel/embabel-agent-examples) repository.
-
-## Model support
-
-Embabel integrates with any LLM supported by Spring AI.
-
-See [LLM integration guide](docs/llm-docs.md) (work in progress).
-
-Also see [Spring AI models](https://docs.spring.io/spring-ai/reference/api/index.html).
-
-## Testing
-
-This repository includes unit tests and integration tests demonstrating how to test Embabel agents.
-
-### Running Tests
-
+Set your LLM API key:
 ```bash
-mvn test
+export OPENAI_API_KEY=your-key
+# or
+export GEMINI_API_KEY=your-key
 ```
 
-### Unit Tests
+### Usage
 
-Unit tests use Embabel's `FakeOperationContext` and `FakePromptRunner` to test agent actions in isolation without
-calling actual LLMs.
+#### Shell (Interactive)
+```bash
+cd agent-java
+mvn spring-boot:run
 
-See [WriteAndReviewAgentTest.java](example-agent/src/test/java/com/embabel/template/agent/WriteAndReviewAgentTest.java)
-for examples
-of:
-
-- Creating a fake context with `FakeOperationContext.create()`
-- Setting up expected responses with `context.expectResponse()`
-- Verifying prompt content contains expected values
-- Inspecting LLM invocations via `promptRunner.getLlmInvocations()`
-
-```java
-var context = FakeOperationContext.create();
-context.
-
-expectResponse(new Story("Once upon a time..."));
-
-var story = agent.craftStory(userInput, context.ai());
-
-var prompt = context.getLlmInvocations().getFirst().getMessages().getFirst().getContent();
-
-assertTrue(prompt.contains("knight"));
+# In shell:
+run-step-by-step --steps "Click login, Enter username" --url "https://example.com"
 ```
 
-### Integration Tests
+#### REST API
+```bash
+cd agent-java
+mvn spring-boot:run
 
-Integration tests extend `EmbabelMockitoIntegrationTest` to test complete agent workflows under Spring Boot with a fully
-configured `AgentPlatform`.
-
-See [WriteAndReviewAgentIntegrationTest.java](example-agent/src/test/java/com/embabel/template/agent/WriteAndReviewAgentIntegrationTest.java)
-for examples of:
-
-- Mocking LLM responses with `whenCreateObject()` and `whenGenerateText()`
-- Running complete agent workflows via `AgentInvocation`
-- Verifying LLM calls and hyperparameters with `verifyCreateObjectMatching()` and `verifyGenerateTextMatching()`
-
-```java
-whenCreateObject(prompt ->prompt.
-
-contains("Craft a short story"),Story.class)
-    .
-
-thenReturn(new Story("AI will transform our world..."));
-
-var invocation = AgentInvocation.create(agentPlatform, ReviewedStory.class);
-var result = invocation.invoke(input);
-
-verifyCreateObjectMatching(
-    prompt ->prompt.
-
-contains("Craft a short story"),
-
-Story .class,
-llm ->llm.
-
-getLlm().
-
-getTemperature() ==0.7
-    );
+# Generate test
+curl -X POST http://localhost:8080/api/v1/test-agent/generate \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Login Test","steps":["Click login","Enter username"],"url":"https://example.com"}'
 ```
 
-## Contributors
+#### n8n Integration
+Configure HTTP Request node:
+- **URL**: `http://your-server:8080/api/v1/test-agent/webhook/n8n`
+- **Method**: POST
+- **Body**:
+```json
+{
+  "title": "Test from n8n",
+  "steps": ["Click login button", "Enter username admin"],
+  "url": "https://target-site.com"
+}
+```
 
-[![Embabel contributors](https://contrib.rocks/image?repo=embabel/java-agent-template)](https://github.com/embabel/java-agent-template/graphs/contributors)
+## Modules
 
+| Module | Description |
+|--------|-------------|
+| `agent-core` | Shared components: browser management, models, TMS clients |
+| `agent-java` | Java JUnit 5 Playwright test generator |
+| `agent-typescript` | TypeScript Playwright test generator (placeholder) |
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/test-agent/health` | GET | Health check |
+| `/api/v1/test-agent/generate` | POST | Generate and run test |
+| `/api/v1/test-agent/analyze` | POST | Analyze steps (dry run) |
+| `/api/v1/test-agent/webhook/n8n` | POST | n8n-compatible webhook |
+
+## Configuration
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| `agent.url` | Target website URL | `https://example.com` |
+| `agent.browser.headless` | Run browser headless | `true` |
+| `agent.browser.timeout` | Browser timeout (ms) | `30000` |
+| `agent.max-repair-attempts` | Self-repair retry limit | `3` |
+| `agent.allure.project` | Allure TestOps project ID | - |
+| `agent.allure.rql` | Allure RQL filter | - |
+
+## License
+
+Apache License 2.0
+
+## Author
+
+**Aleksei Stafeev** - [@alstafeev](https://github.com/alstafeev)
