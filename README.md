@@ -33,7 +33,7 @@ Run the shell script to start Embabel under Spring Shell:
 ```
 
 There is a single example
-agent, [WriteAndReviewAgent](./src/main/java/com/embabel/template/agent/WriteAndReviewAgent.java).
+agent, [WriteAndReviewAgent](example-agent/src/main/java/com/embabel/template/agent/WriteAndReviewAgent.java).
 It uses one LLM with a high temperature and creative persona to write a story based on your input,
 then another LLM with a low temperature and different persona to review the story.
 
@@ -46,10 +46,10 @@ x "Tell me a story about...[your topic]"
 Try the following other shell commands:
 
 - `demo`: Runs the same agent, invoked programmatically, instead of dynamically based on user input.
-  See [DemoCommands.java](./src/main/java/com/embabel/template/DemoShell.java) for the
+  See [DemoCommands.java](example-agent/src/main/java/com/embabel/template/DemoShell.java) for the
   implementation.
 - `animal`:  Runs a simple demo using an Embabel injected `Ai` instance to call an LLM.
-  See [InjectedDemo](./src/main/java/com/embabel/template/injected/InjectedDemo.java).
+  See [InjectedDemo](example-agent/src/main/java/com/embabel/template/injected/InjectedDemo.java).
 
 ## Suggested Next Steps
 
@@ -86,7 +86,8 @@ mvn test
 Unit tests use Embabel's `FakeOperationContext` and `FakePromptRunner` to test agent actions in isolation without
 calling actual LLMs.
 
-See [WriteAndReviewAgentTest.java](./src/test/java/com/embabel/template/agent/WriteAndReviewAgentTest.java) for examples
+See [WriteAndReviewAgentTest.java](example-agent/src/test/java/com/embabel/template/agent/WriteAndReviewAgentTest.java)
+for examples
 of:
 
 - Creating a fake context with `FakeOperationContext.create()`
@@ -96,11 +97,14 @@ of:
 
 ```java
 var context = FakeOperationContext.create();
-context.expectResponse(new Story("Once upon a time..."));
+context.
+
+expectResponse(new Story("Once upon a time..."));
 
 var story = agent.craftStory(userInput, context.ai());
 
 var prompt = context.getLlmInvocations().getFirst().getMessages().getFirst().getContent();
+
 assertTrue(prompt.contains("knight"));
 ```
 
@@ -109,7 +113,7 @@ assertTrue(prompt.contains("knight"));
 Integration tests extend `EmbabelMockitoIntegrationTest` to test complete agent workflows under Spring Boot with a fully
 configured `AgentPlatform`.
 
-See [WriteAndReviewAgentIntegrationTest.java](./src/test/java/com/embabel/template/agent/WriteAndReviewAgentIntegrationTest.java)
+See [WriteAndReviewAgentIntegrationTest.java](example-agent/src/test/java/com/embabel/template/agent/WriteAndReviewAgentIntegrationTest.java)
 for examples of:
 
 - Mocking LLM responses with `whenCreateObject()` and `whenGenerateText()`
@@ -117,17 +121,28 @@ for examples of:
 - Verifying LLM calls and hyperparameters with `verifyCreateObjectMatching()` and `verifyGenerateTextMatching()`
 
 ```java
-whenCreateObject(prompt -> prompt.contains("Craft a short story"), Story.class)
-    .thenReturn(new Story("AI will transform our world..."));
+whenCreateObject(prompt ->prompt.
+
+contains("Craft a short story"),Story.class)
+    .
+
+thenReturn(new Story("AI will transform our world..."));
 
 var invocation = AgentInvocation.create(agentPlatform, ReviewedStory.class);
 var result = invocation.invoke(input);
 
 verifyCreateObjectMatching(
-    prompt -> prompt.contains("Craft a short story"),
-    Story.class,
-    llm -> llm.getLlm().getTemperature() == 0.7
-);
+    prompt ->prompt.
+
+contains("Craft a short story"),
+
+Story .class,
+llm ->llm.
+
+getLlm().
+
+getTemperature() ==0.7
+    );
 ```
 
 ## Contributors

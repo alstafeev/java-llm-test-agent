@@ -1,0 +1,196 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>ui-test-agent</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.14.1</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- Source: https://mvnrepository.com/artifact/com.microsoft.playwright/playwright -->
+    <dependency>
+      <artifactId>playwright</artifactId>
+      <groupId>com.microsoft.playwright</groupId>
+      <version>${playwright.version}</version>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
+    <dependency>
+      <artifactId>junit-jupiter</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/org.junit.platform/junit-platform-launcher -->
+    <dependency>
+      <artifactId>junit-platform-launcher</artifactId>
+      <groupId>org.junit.platform</groupId>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/tools.jackson.core/jackson-databind -->
+    <dependency>
+      <artifactId>jackson-databind</artifactId>
+      <groupId>tools.jackson.core</groupId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+    <dependency>
+      <artifactId>log4j-core</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <version>${log4j2.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+    <dependency>
+      <artifactId>log4j-api</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <version>${log4j2.version}</version>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/commons-io/commons-io -->
+    <dependency>
+      <artifactId>commons-io</artifactId>
+      <groupId>commons-io</groupId>
+      <version>2.21.0</version>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+      <scope>compile</scope>
+      <version>1.18.42</version>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/com.embabel.agent/embabel-agent-starter-openai -->
+    <dependency>
+      <artifactId>embabel-agent-starter-openai</artifactId>
+      <groupId>com.embabel.agent</groupId>
+      <version>${embabel-agent.version}</version>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/com.embabel.agent/embabel-agent-starter-ollama -->
+    <dependency>
+      <artifactId>embabel-agent-starter-ollama</artifactId>
+      <groupId>com.embabel.agent</groupId>
+      <version>${embabel-agent.version}</version>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator -->
+    <dependency>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+    <dependency>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+
+    <!-- Embabel Agent Shell Starter for interactive commands -->
+    <dependency>
+      <artifactId>embabel-agent-starter-shell</artifactId>
+      <groupId>com.embabel.agent</groupId>
+      <version>${embabel-agent.version}</version>
+    </dependency>
+
+    <!-- Embabel Agent Test for unit and integration testing -->
+    <dependency>
+      <artifactId>embabel-agent-test</artifactId>
+      <groupId>com.embabel.agent</groupId>
+      <scope>test</scope>
+      <version>${embabel-agent.version}</version>
+    </dependency>
+
+    <!-- Spring Boot Starter Test -->
+    <dependency>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Source: https://mvnrepository.com/artifact/org.junit/junit-bom -->
+      <dependency>
+        <artifactId>junit-bom</artifactId>
+        <groupId>org.junit</groupId>
+        <version>${junit.version}</version>
+      </dependency>
+
+      <!-- Source: https://mvnrepository.com/artifact/com.embabel.agent/embabel-agent-dependencies -->
+      <dependency>
+        <artifactId>embabel-agent-dependencies</artifactId>
+        <groupId>com.embabel.agent</groupId>
+        <version>${embabel-agent.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <description>LLM UI Test Agent</description>
+
+  <developers>
+    <developer>
+      <email>alekseystafeev@gmail.com</email>
+      <id>alstafeev</id>
+      <name>Aleksei Stafeev</name>
+      <roles>
+        <role>Developer</role>
+        <role>Maintainer</role>
+      </roles>
+      <timezone>Europe/Madrid</timezone>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>llm-ui-test-agent</name>
+
+  <packaging>jar</packaging>
+  <parent>
+    <artifactId>java-llm-test-agent</artifactId>
+    <groupId>io.github.alstafeev</groupId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <embabel-agent.version>0.3.1</embabel-agent.version>
+    <jackson.version>3.0.3</jackson.version>
+    <java.version>21</java.version>
+    <junit.version>6.0.2</junit.version>
+    <log4j2.version>2.25.1</log4j2.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <playwright.version>1.57.0</playwright.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring-boot.version>3.4.1</spring-boot.version>
+  </properties>
+
+  <scm>
+    <connection>scm:git:https://github.com/alstafeev/llm-ui-test-agent.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/alstafeev/llm-ui-test-agent.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/alstafeev/llm-ui-test-agent</url>
+  </scm>
+
+  <url>https://github.com/alstafeev/llm-ui-test-agent</url>
+
+  <version>1.0-SNAPSHOT</version>
+</project>
