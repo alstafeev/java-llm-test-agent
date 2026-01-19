@@ -26,7 +26,6 @@ import agent.model.TestExecutionResult;
 import agent.model.TestResult;
 import agent.tools.AgentTools;
 import com.embabel.agent.api.annotation.Action;
-import com.embabel.agent.api.annotation.Agent;
 import com.embabel.agent.api.common.Ai;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +35,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Main orchestrator for step-by-step UI test generation. Processes each test step individually with LLM guidance, then
+ * Main orchestrator for step-by-step UI test generation. Processes each test
+ * step individually with LLM guidance, then
  * generates final test code.
  */
 @Slf4j
-@Agent(description = "Orchestrates step-by-step UI test execution with LLM-guided browser interactions")
 @Component
 @Scope("prototype")
 @RequiredArgsConstructor
@@ -54,8 +53,10 @@ public class StepByStepOrchestrator {
   private final AgentProperties agentProperties;
 
   /**
-   * Processes a test case step by step: 1. Opens the start URL and captures initial state 2. For each step: analyzes
-   * with LLM, executes instruction, captures new state 3. Generates final Java test code from recorded actions 4.
+   * Processes a test case step by step: 1. Opens the start URL and captures
+   * initial state 2. For each step: analyzes
+   * with LLM, executes instruction, captures new state 3. Generates final Java
+   * test code from recorded actions 4.
    * Optionally runs and repairs the test
    *
    * @param testCase the test case with steps
@@ -135,7 +136,8 @@ public class StepByStepOrchestrator {
   }
 
   /**
-   * Quick analysis mode - just analyzes steps without executing or generating code. Useful for debugging and
+   * Quick analysis mode - just analyzes steps without executing or generating
+   * code. Useful for debugging and
    * understanding what actions the LLM would take.
    */
   @Action(description = "Analyzes test steps without executing - returns planned instructions")

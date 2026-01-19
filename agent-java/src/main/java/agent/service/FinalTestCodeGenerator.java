@@ -22,7 +22,6 @@ import agent.model.PlaywrightInstruction;
 import agent.model.StepExecutionResult;
 import agent.model.TestCase;
 import com.embabel.agent.api.annotation.Action;
-import com.embabel.agent.api.annotation.Agent;
 import com.embabel.agent.api.common.Ai;
 import com.embabel.common.ai.model.LlmOptions;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.springframework.stereotype.Component;
  * Generates final JUnit 5 Playwright test code from executed step results.
  */
 @Slf4j
-@Agent(description = "Generates final Java test code from recorded step executions")
 @Component
 @Scope("prototype")
 @RequiredArgsConstructor

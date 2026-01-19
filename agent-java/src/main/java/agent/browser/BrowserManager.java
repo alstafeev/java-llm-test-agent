@@ -15,11 +15,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Manages Playwright browser lifecycle and provides step-by-step execution capabilities.
+ * Manages Playwright browser lifecycle and provides step-by-step execution
+ * capabilities.
  */
 @Slf4j
 @Component
 @Scope("prototype")
+@org.springframework.context.annotation.Lazy
 public class BrowserManager implements AutoCloseable {
 
   private final BrowserContext context;

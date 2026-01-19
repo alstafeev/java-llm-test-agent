@@ -17,11 +17,13 @@ public class AgentConfig {
   private final AgentProperties agentProperties;
 
   @Bean(destroyMethod = "close")
+  @org.springframework.context.annotation.Lazy
   public Playwright playwright() {
     return Playwright.create();
   }
 
   @Bean(destroyMethod = "close")
+  @org.springframework.context.annotation.Lazy
   public Browser browser(Playwright playwright) {
     return playwright.chromium().launch(new BrowserType.LaunchOptions()
         .setHeadless(agentProperties.getBrowser().isHeadless())

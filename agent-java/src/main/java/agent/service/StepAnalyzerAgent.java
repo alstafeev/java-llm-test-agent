@@ -20,7 +20,6 @@ import agent.model.PlaywrightInstruction;
 import agent.model.PlaywrightInstruction.ActionType;
 import agent.model.StepExecutionContext;
 import com.embabel.agent.api.annotation.Action;
-import com.embabel.agent.api.annotation.Agent;
 import com.embabel.agent.api.common.Ai;
 import com.embabel.common.ai.model.LlmOptions;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,11 +30,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Agent that analyzes a single test step and generates a Playwright instruction. Uses DOM snapshot and screenshot to
+ * Agent that analyzes a single test step and generates a Playwright
+ * instruction. Uses DOM snapshot and screenshot to
  * determine the exact action needed.
  */
 @Slf4j
-@Agent(description = "Analyzes test steps to generate Playwright browser instructions")
 @Component
 @Scope("prototype")
 @RequiredArgsConstructor
@@ -45,7 +44,8 @@ public class StepAnalyzerAgent {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   /**
-   * Analyzes the current step and page state to generate a Playwright instruction.
+   * Analyzes the current step and page state to generate a Playwright
+   * instruction.
    */
   @Action(description = "Analyzes DOM and screenshot to generate a single Playwright instruction for the step")
   public PlaywrightInstruction analyzeStep(StepExecutionContext context, Ai ai) throws Exception {
