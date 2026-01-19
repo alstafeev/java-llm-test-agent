@@ -112,7 +112,7 @@ public class AgentTools {
   @LlmTool(description = "Saves the successful generated test code to a file and optionally pushes to Git repository.")
   public String saveGeneratedTest(String testCase, String testCode) throws Exception {
     String sanitizedFileName = testCase.replaceAll("[^a-zA-Z0-9]", "_") + "Test.java";
-    
+
     // 1. Always save locally
     File outputDir = new File(agentProperties.getTestOutputDir());
     if (!outputDir.exists()) {
@@ -120,7 +120,7 @@ public class AgentTools {
     }
     Files.writeString(Paths.get(outputDir.getAbsolutePath(), sanitizedFileName), testCode);
     log.info("Test persisted locally to: {}", sanitizedFileName);
-    
+
     // 2. If Git enabled, push to repository and create PR
     String prUrl = null;
     if (testRepositoryManager != null && agentProperties.getGit().isEnabled()) {
@@ -133,7 +133,7 @@ public class AgentTools {
         log.warn("Failed to push test to Git repository: {}", e.getMessage());
       }
     }
-    
+
     return prUrl != null ? prUrl : sanitizedFileName;
   }
 

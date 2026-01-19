@@ -1,10 +1,11 @@
 # LLM Test Agent
 
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white) ![Playwright](https://img.shields.io/badge/Playwright-45ba4b?style=for-the-badge&logo=Playwright&logoColor=white) 
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white) ![Playwright](https://img.shields.io/badge/Playwright-45ba4b?style=for-the-badge&logo=Playwright&logoColor=white)
 
 **AI-powered agent for generating UI automated tests from TMS test cases.**
 
-Uses LLM to analyze DOM and screenshots, execute browser actions step-by-step, and generate ready-to-run Playwright tests. Supports automatic Git integration for committing tests and creating Pull Requests.
+Uses LLM to analyze DOM and screenshots, execute browser actions step-by-step, and generate ready-to-run Playwright
+tests. Supports automatic Git integration for committing tests and creating Pull Requests.
 
 ## Features
 
@@ -70,6 +71,7 @@ mvn install
 ### Configuration
 
 Set your LLM API key:
+
 ```bash
 export OPENAI_API_KEY=your-key
 # or
@@ -79,6 +81,7 @@ export GEMINI_API_KEY=your-key
 ### Usage
 
 #### Shell (Interactive)
+
 ```bash
 cd agent-java
 mvn spring-boot:run
@@ -88,6 +91,7 @@ run-step-by-step --steps "Click login, Enter username" --url "https://example.co
 ```
 
 #### REST API
+
 ```bash
 cd agent-java
 mvn spring-boot:run
@@ -137,37 +141,37 @@ The agent analyzes existing tests in the repository to generate new tests with c
 
 ## Modules
 
-| Module | Description |
-|--------|-------------|
-| `agent-core` | Shared components: browser management, models, TMS clients |
-| `agent-java` | Java JUnit 5 Playwright test generator |
-| `agent-typescript` | TypeScript Playwright test generator (placeholder) |
+| Module             | Description                                                |
+|--------------------|------------------------------------------------------------|
+| `agent-core`       | Shared components: browser management, models, TMS clients |
+| `agent-java`       | Java JUnit 5 Playwright test generator                     |
+| `agent-typescript` | TypeScript Playwright test generator (placeholder)         |
 
 ## API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/test-agent/health` | GET | Health check |
-| `/api/v1/test-agent/generate` | POST | Generate and run test |
-| `/api/v1/test-agent/analyze` | POST | Analyze steps (dry run) |
-| `/api/v1/test-agent/webhook/n8n` | POST | n8n-compatible webhook |
+| Endpoint                         | Method | Description             |
+|----------------------------------|--------|-------------------------|
+| `/api/v1/test-agent/health`      | GET    | Health check            |
+| `/api/v1/test-agent/generate`    | POST   | Generate and run test   |
+| `/api/v1/test-agent/analyze`     | POST   | Analyze steps (dry run) |
+| `/api/v1/test-agent/webhook/n8n` | POST   | n8n-compatible webhook  |
 
 ## Configuration Reference
 
-| Property | Description | Default |
-|----------|-------------|---------|
-| `agent.url` | Target website URL | `https://example.com` |
-| `agent.test-output-dir` | Local test output directory | `src/test/java/generated` |
-| `agent.browser.headless` | Run browser headless | `true` |
-| `agent.browser.timeout` | Browser timeout (ms) | `30000` |
-| `agent.git.enabled` | Enable Git integration | `false` |
-| `agent.git.repo-url` | Test repository URL | - |
-| `agent.git.base-branch` | Base branch for PRs | `main` |
-| `agent.git.create-pr` | Create PR after push | `true` |
-| `agent.github.api-url` | GitHub API URL | `https://api.github.com` |
-| `agent.github.token` | GitHub PAT | `${GITHUB_TOKEN}` |
-| `agent.allure.project` | Allure TestOps project ID | - |
-| `agent.allure.rql` | Allure RQL filter | - |
+| Property                 | Description                 | Default                   |
+|--------------------------|-----------------------------|---------------------------|
+| `agent.url`              | Target website URL          | `https://example.com`     |
+| `agent.test-output-dir`  | Local test output directory | `src/test/java/generated` |
+| `agent.browser.headless` | Run browser headless        | `true`                    |
+| `agent.browser.timeout`  | Browser timeout (ms)        | `30000`                   |
+| `agent.git.enabled`      | Enable Git integration      | `false`                   |
+| `agent.git.repo-url`     | Test repository URL         | -                         |
+| `agent.git.base-branch`  | Base branch for PRs         | `main`                    |
+| `agent.git.create-pr`    | Create PR after push        | `true`                    |
+| `agent.github.api-url`   | GitHub API URL              | `https://api.github.com`  |
+| `agent.github.token`     | GitHub PAT                  | `${GITHUB_TOKEN}`         |
+| `agent.allure.project`   | Allure TestOps project ID   | -                         |
+| `agent.allure.rql`       | Allure RQL filter           | -                         |
 
 ## License
 

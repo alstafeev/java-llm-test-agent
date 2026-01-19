@@ -20,51 +20,50 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * Context for executing a single test step. Contains current browser state
- * including DOM snapshot and screenshot for LLM analysis.
+ * Context for executing a single test step. Contains current browser state including DOM snapshot and screenshot for
+ * LLM analysis.
  */
 @Data
 @Builder
 public class StepExecutionContext {
 
-    /**
-     * The step description from TMS (e.g., "Click on login button").
-     */
-    private final String stepDescription;
+  /**
+   * The step description from TMS (e.g., "Click on login button").
+   */
+  private final String stepDescription;
 
-    /**
-     * Step number in the test case (1-indexed).
-     */
-    private final int stepNumber;
+  /**
+   * Step number in the test case (1-indexed).
+   */
+  private final int stepNumber;
 
-    /**
-     * Total number of steps in the test case.
-     */
-    private final int totalSteps;
+  /**
+   * Total number of steps in the test case.
+   */
+  private final int totalSteps;
 
-    /**
-     * Current DOM snapshot of the page (simplified for LLM).
-     */
-    private final String domSnapshot;
+  /**
+   * Current DOM snapshot of the page (simplified for LLM).
+   */
+  private final String domSnapshot;
 
-    /**
-     * Base64-encoded screenshot of the current page state.
-     */
-    private final String screenshotBase64;
+  /**
+   * Base64-encoded screenshot of the current page state.
+   */
+  private final String screenshotBase64;
 
-    /**
-     * Current URL of the page.
-     */
-    private final String currentUrl;
+  /**
+   * Current URL of the page.
+   */
+  private final String currentUrl;
 
-    /**
-     * List of previously executed actions in this test run.
-     * Helps LLM understand context of what has been done.
-     */
-    private final List<PlaywrightInstruction> previousActions;
+  /**
+   * List of previously executed actions in this test run. Helps LLM understand context of what has been done.
+   */
+  private final List<PlaywrightInstruction> previousActions;
 
-    /**
-     * The test case title for context.
-     */
-    private final String testCaseTitle;
+  /**
+   * The test case title for context.
+   */
+  private final String testCaseTitle;
 }

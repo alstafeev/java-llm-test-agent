@@ -16,129 +16,128 @@
 package agent.model;
 
 /**
- * Represents a single Playwright action instruction from LLM.
- * Used for step-by-step browser control.
+ * Represents a single Playwright action instruction from LLM. Used for step-by-step browser control.
  */
 public record PlaywrightInstruction(
-        /**
-         * Type of action to perform.
-         */
-        ActionType actionType,
-
-        /**
-         * Locator for the target element (CSS, XPath, text, etc.).
-         * Can be null for actions that don't require a target (e.g., NAVIGATE).
-         */
-        String locator,
-
-        /**
-         * Value for the action (text for FILL, URL for NAVIGATE, etc.).
-         * Can be null for actions that don't require a value (e.g., CLICK).
-         */
-        String value,
-
-        /**
-         * Human-readable description of this action for logging and code generation.
-         */
-        String description) {
+    /**
+     * Type of action to perform.
+     */
+    ActionType actionType,
 
     /**
-     * Supported Playwright action types.
+     * Locator for the target element (CSS, XPath, text, etc.).
+     * Can be null for actions that don't require a target (e.g., NAVIGATE).
      */
-    public enum ActionType {
-        /**
-         * Click on an element.
-         */
-        CLICK,
+    String locator,
 
-        /**
-         * Double-click on an element.
-         */
-        DOUBLE_CLICK,
+    /**
+     * Value for the action (text for FILL, URL for NAVIGATE, etc.).
+     * Can be null for actions that don't require a value (e.g., CLICK).
+     */
+    String value,
 
-        /**
-         * Fill text into an input field.
-         */
-        FILL,
+    /**
+     * Human-readable description of this action for logging and code generation.
+     */
+    String description) {
 
-        /**
-         * Type text with keyboard events (slower than FILL, but more realistic).
-         */
-        TYPE,
+  /**
+   * Supported Playwright action types.
+   */
+  public enum ActionType {
+    /**
+     * Click on an element.
+     */
+    CLICK,
 
-        /**
-         * Navigate to a URL.
-         */
-        NAVIGATE,
+    /**
+     * Double-click on an element.
+     */
+    DOUBLE_CLICK,
 
-        /**
-         * Wait for an element to be visible.
-         */
-        WAIT,
+    /**
+     * Fill text into an input field.
+     */
+    FILL,
 
-        /**
-         * Wait for a specific amount of time (milliseconds in value).
-         */
-        WAIT_TIME,
+    /**
+     * Type text with keyboard events (slower than FILL, but more realistic).
+     */
+    TYPE,
 
-        /**
-         * Hover over an element.
-         */
-        HOVER,
+    /**
+     * Navigate to a URL.
+     */
+    NAVIGATE,
 
-        /**
-         * Select an option from a dropdown.
-         */
-        SELECT,
+    /**
+     * Wait for an element to be visible.
+     */
+    WAIT,
 
-        /**
-         * Press a keyboard key.
-         */
-        PRESS,
+    /**
+     * Wait for a specific amount of time (milliseconds in value).
+     */
+    WAIT_TIME,
 
-        /**
-         * Assert that an element contains specific text.
-         */
-        ASSERT_TEXT,
+    /**
+     * Hover over an element.
+     */
+    HOVER,
 
-        /**
-         * Assert that an element is visible.
-         */
-        ASSERT_VISIBLE,
+    /**
+     * Select an option from a dropdown.
+     */
+    SELECT,
 
-        /**
-         * Assert page URL matches.
-         */
-        ASSERT_URL,
+    /**
+     * Press a keyboard key.
+     */
+    PRESS,
 
-        /**
-         * Scroll to element.
-         */
-        SCROLL,
+    /**
+     * Assert that an element contains specific text.
+     */
+    ASSERT_TEXT,
 
-        /**
-         * Clear input field.
-         */
-        CLEAR,
+    /**
+     * Assert that an element is visible.
+     */
+    ASSERT_VISIBLE,
 
-        /**
-         * Check a checkbox.
-         */
-        CHECK,
+    /**
+     * Assert page URL matches.
+     */
+    ASSERT_URL,
 
-        /**
-         * Uncheck a checkbox.
-         */
-        UNCHECK,
+    /**
+     * Scroll to element.
+     */
+    SCROLL,
 
-        /**
-         * Focus on an element.
-         */
-        FOCUS,
+    /**
+     * Clear input field.
+     */
+    CLEAR,
 
-        /**
-         * Take a screenshot (for debugging).
-         */
-        SCREENSHOT
-    }
+    /**
+     * Check a checkbox.
+     */
+    CHECK,
+
+    /**
+     * Uncheck a checkbox.
+     */
+    UNCHECK,
+
+    /**
+     * Focus on an element.
+     */
+    FOCUS,
+
+    /**
+     * Take a screenshot (for debugging).
+     */
+    SCREENSHOT
+  }
 }

@@ -31,72 +31,72 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class InstructionExecutor {
 
-    private final BrowserManager browserManager;
+  private final BrowserManager browserManager;
 
-    /**
-     * Executes a single Playwright instruction and captures the resulting state.
-     *
-     * @param instruction the instruction to execute
-     * @param context     the current step context
-     * @return the execution result with new browser state
-     */
-    public StepExecutionResult execute(PlaywrightInstruction instruction, StepExecutionContext context) {
-        long startTime = System.currentTimeMillis();
+  /**
+   * Executes a single Playwright instruction and captures the resulting state.
+   *
+   * @param instruction the instruction to execute
+   * @param context     the current step context
+   * @return the execution result with new browser state
+   */
+  public StepExecutionResult execute(PlaywrightInstruction instruction, StepExecutionContext context) {
+    long startTime = System.currentTimeMillis();
 
-        try {
-            log.info("Executing step {}: {} - {}",
-                    context.getStepNumber(),
-                    instruction.actionType(),
-                    instruction.description());
+    try {
+      log.info("Executing step {}: {} - {}",
+          context.getStepNumber(),
+          instruction.actionType(),
+          instruction.description());
 
-            browserManager.executeInstruction(instruction);
+      browserManager.executeInstruction(instruction);
 
-            // Capture state after execution
-            BrowserManager.BrowserState newState = browserManager.getCurrentState();
-            long executionTime = System.currentTimeMillis() - startTime;
+      // Capture state after execution
+      BrowserManager.BrowserState newState = browserManager.getCurrentState();
+      long executionTime = System.currentTimeMillis() - startTime;
 
-            log.info("Step {} completed successfully in {}ms", context.getStepNumber(), executionTime);
+      log.info("Step {} completed successfully in {}ms", context.getStepNumber(), executionTime);
 
-            return StepExecutionResult.builder()
-                    .instruction(instruction)
-                    .stepNumber(context.getStepNumber())
-                    .stepDescription(context.getStepDescription())
-                    .success(true)
-                    .domSnapshotAfter(newState.domSnapshot())
-                    .screenshotAfter(newState.screenshotBase64())
-                    .urlAfter(newState.currentUrl())
-                    .executionTimeMs(executionTime)
-                    .build();
+      return StepExecutionResult.builder()
+          .instruction(instruction)
+          .stepNumber(context.getStepNumber())
+          .stepDescription(context.getStepDescription())
+          .success(true)
+          .domSnapshotAfter(newState.domSnapshot())
+          .screenshotAfter(newState.screenshotBase64())
+          .urlAfter(newState.currentUrl())
+          .executionTimeMs(executionTime)
+          .build();
 
-        } catch (Exception e) {
-            long executionTime = System.currentTimeMillis() - startTime;
-            log.error("Step {} failed: {}", context.getStepNumber(), e.getMessage(), e);
+    } catch (Exception e) {
+      long executionTime = System.currentTimeMillis() - startTime;
+      log.error("Step {} failed: {}", context.getStepNumber(), e.getMessage(), e);
 
-            // Try to capture state even on failure
-            String domAfter = null;
-            String screenshotAfter = null;
-            String urlAfter = null;
+      // Try to capture state even on failure
+      String domAfter = null;
+      String screenshotAfter = null;
+      String urlAfter = null;
 
-            try {
-                BrowserManager.BrowserState state = browserManager.getCurrentState();
-                domAfter = state.domSnapshot();
-                screenshotAfter = state.screenshotBase64();
-                urlAfter = state.currentUrl();
-            } catch (Exception stateError) {
-                log.warn("Could not capture state after failure: {}", stateError.getMessage());
-            }
+      try {
+        BrowserManager.BrowserState state = browserManager.getCurrentState();
+        domAfter = state.domSnapshot();
+        screenshotAfter = state.screenshotBase64();
+        urlAfter = state.currentUrl();
+      } catch (Exception stateError) {
+        log.warn("Could not capture state after failure: {}", stateError.getMessage());
+      }
 
-            return StepExecutionResult.builder()
-                    .instruction(instruction)
-                    .stepNumber(context.getStepNumber())
-                    .stepDescription(context.getStepDescription())
-                    .success(false)
-                    .errorMessage(e.getMessage())
-                    .domSnapshotAfter(domAfter)
-                    .screenshotAfter(screenshotAfter)
-                    .urlAfter(urlAfter)
-                    .executionTimeMs(executionTime)
-                    .build();
-        }
+      return StepExecutionResult.builder()
+          .instruction(instruction)
+          .stepNumber(context.getStepNumber())
+          .stepDescription(context.getStepDescription())
+          .success(false)
+          .errorMessage(e.getMessage())
+          .domSnapshotAfter(domAfter)
+          .screenshotAfter(screenshotAfter)
+          .urlAfter(urlAfter)
+          .executionTimeMs(executionTime)
+          .build();
     }
+  }
 }

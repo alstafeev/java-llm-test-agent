@@ -43,6 +43,8 @@ public class AgentProperties {
   private Browser browser = new Browser();
   private Dom dom = new Dom();
   private AllureProperties allure = new AllureProperties();
+  private Git git = new Git();
+  private GitHub github = new GitHub();
 
   @Data
   public static class Browser {
@@ -77,13 +79,13 @@ public class AgentProperties {
    */
   @Data
   public static class Git {
+
     /**
      * Enable Git integration.
      */
     private boolean enabled = false;
     /**
-     * Git repository URL (SSH or HTTPS).
-     * Example: git@github.com:company/ui-tests.git
+     * Git repository URL (SSH or HTTPS). Example: git@github.com:company/ui-tests.git
      */
     private String repoUrl;
     /**
@@ -113,18 +115,14 @@ public class AgentProperties {
    */
   @Data
   public static class GitHub {
+
     /**
-     * GitHub API URL. Default is public GitHub.
-     * For GitHub Enterprise: https://git.your.company/api/v3
+     * GitHub API URL. Default is public GitHub. For GitHub Enterprise: https://git.your.company/api/v3
      */
     private String apiUrl = "https://api.github.com";
     /**
-     * GitHub Personal Access Token with 'repo' scope.
-     * Can be set via environment variable GITHUB_TOKEN.
+     * GitHub Personal Access Token with 'repo' scope. Can be set via environment variable GITHUB_TOKEN.
      */
     private String token;
   }
-
-  private Git git = new Git();
-  private GitHub github = new GitHub();
 }

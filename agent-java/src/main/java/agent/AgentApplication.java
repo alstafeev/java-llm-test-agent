@@ -21,10 +21,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 /**
- * Main entry point for the LLM UI Test Agent.
- * Follows example-agent's minimal application pattern - orchestration is
- * handled
- * by UiTestAgentShell or via AgentInvocation.
+ * Main entry point for the LLM UI Test Agent. Follows example-agent's minimal application pattern - orchestration is
+ * handled by UiTestAgentShell or via AgentInvocation.
  */
 @SpringBootApplication
 @EnableConfigurationProperties(AgentProperties.class)

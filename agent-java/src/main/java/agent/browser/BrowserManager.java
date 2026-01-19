@@ -15,8 +15,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Manages Playwright browser lifecycle and provides step-by-step execution
- * capabilities.
+ * Manages Playwright browser lifecycle and provides step-by-step execution capabilities.
  */
 @Slf4j
 @Component
@@ -252,5 +251,6 @@ public class BrowserManager implements AutoCloseable {
    * Represents current browser state for step analysis.
    */
   public record BrowserState(String domSnapshot, String screenshotBase64, String currentUrl) {
+
   }
 }

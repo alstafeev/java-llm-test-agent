@@ -1,60 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>agent-typescript</artifactId>
+
+  <build>
+    <plugins>
+      <!-- Skip spring-boot-maven-plugin for library modules -->
+      <plugin>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+        <groupId>org.springframework.boot</groupId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- Core module -->
+    <dependency>
+      <artifactId>agent-core</artifactId>
+      <groupId>io.github.alstafeev</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Embabel Agent -->
+    <dependency>
+      <artifactId>embabel-agent-starter</artifactId>
+      <groupId>com.embabel.agent</groupId>
+      <version>${embabel-agent.version}</version>
+    </dependency>
+
+    <!-- Lombok -->
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+      <scope>provided</scope>
+      <version>1.18.42</version>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <artifactId>junit-jupiter</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <description>Agent for generating TypeScript Playwright UI tests</description>
   <modelVersion>4.0.0</modelVersion>
+  <name>LLM Test Agent - TypeScript Playwright Tests</name>
+
+  <packaging>jar</packaging>
 
   <parent>
     <artifactId>llm-test-agent</artifactId>
     <groupId>io.github.alstafeev</groupId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
-
-  <artifactId>agent-typescript</artifactId>
-  <name>LLM Test Agent - TypeScript Playwright Tests</name>
-  <description>Agent for generating TypeScript Playwright UI tests</description>
-  <packaging>jar</packaging>
-
-  <dependencies>
-    <!-- Core module -->
-    <dependency>
-      <groupId>io.github.alstafeev</groupId>
-      <artifactId>agent-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- Embabel Agent -->
-    <dependency>
-      <groupId>com.embabel.agent</groupId>
-      <artifactId>embabel-agent-starter</artifactId>
-      <version>${embabel-agent.version}</version>
-    </dependency>
-
-    <!-- Lombok -->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.18.42</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- Testing -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <!-- Skip spring-boot-maven-plugin for library modules -->
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

@@ -16,9 +16,8 @@
 package agent.core;
 
 /**
- * Marker interface for agent-core module.
- * Core shared components for test generation agents.
- * 
+ * Marker interface for agent-core module. Core shared components for test generation agents.
+ *
  * <p>This module will contain:
  * <ul>
  *   <li>Browser management (Playwright)</li>
@@ -27,11 +26,12 @@ package agent.core;
  *   <li>TMS client interfaces</li>
  *   <li>Shared LLM prompts and personas</li>
  * </ul>
- * 
+ *
  * <p>TODO: Move shared components from agent-java here
  */
 public final class AgentCoreModule {
-    private AgentCoreModule() {
-        // Utility class
-    }
+
+  private AgentCoreModule() {
+    // Utility class
+  }
 }

@@ -25,48 +25,48 @@ import lombok.Data;
 @Builder
 public class StepExecutionResult {
 
-    /**
-     * The instruction that was executed.
-     */
-    private final PlaywrightInstruction instruction;
+  /**
+   * The instruction that was executed.
+   */
+  private final PlaywrightInstruction instruction;
 
-    /**
-     * Step number that was executed.
-     */
-    private final int stepNumber;
+  /**
+   * Step number that was executed.
+   */
+  private final int stepNumber;
 
-    /**
-     * Original step description from TMS.
-     */
-    private final String stepDescription;
+  /**
+   * Original step description from TMS.
+   */
+  private final String stepDescription;
 
-    /**
-     * Whether the step executed successfully.
-     */
-    private final boolean success;
+  /**
+   * Whether the step executed successfully.
+   */
+  private final boolean success;
 
-    /**
-     * DOM snapshot after execution (for next step analysis).
-     */
-    private final String domSnapshotAfter;
+  /**
+   * DOM snapshot after execution (for next step analysis).
+   */
+  private final String domSnapshotAfter;
 
-    /**
-     * Base64 screenshot after execution.
-     */
-    private final String screenshotAfter;
+  /**
+   * Base64 screenshot after execution.
+   */
+  private final String screenshotAfter;
 
-    /**
-     * Current URL after execution.
-     */
-    private final String urlAfter;
+  /**
+   * Current URL after execution.
+   */
+  private final String urlAfter;
 
-    /**
-     * Error message if execution failed.
-     */
-    private final String errorMessage;
+  /**
+   * Error message if execution failed.
+   */
+  private final String errorMessage;
 
-    /**
-     * Execution time in milliseconds.
-     */
-    private final long executionTimeMs;
+  /**
+   * Execution time in milliseconds.
+   */
+  private final long executionTimeMs;
 }
