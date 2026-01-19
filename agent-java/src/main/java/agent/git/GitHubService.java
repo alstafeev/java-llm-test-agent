@@ -145,18 +145,18 @@ public class GitHubService {
     }
 
     String token = getToken();
-      if (token == null) {
-          return;
-      }
+    if (token == null) {
+      return;
+    }
 
     List<String> reviewerList = Arrays.stream(reviewers.split(","))
         .map(String::trim)
         .filter(s -> !s.isEmpty())
         .toList();
 
-      if (reviewerList.isEmpty()) {
-          return;
-      }
+    if (reviewerList.isEmpty()) {
+      return;
+    }
 
     String apiUrl = String.format("%s/repos/%s/%s/pulls/%d/requested_reviewers",
         githubConfig.getApiUrl(), owner, repo, prNumber);
@@ -192,9 +192,9 @@ public class GitHubService {
    */
   private String findExistingPrUrl(String owner, String repo, String headBranch) throws Exception {
     String token = getToken();
-      if (token == null) {
-          return null;
-      }
+    if (token == null) {
+      return null;
+    }
 
     String apiUrl = String.format("%s/repos/%s/%s/pulls?head=%s:%s&state=open",
         githubConfig.getApiUrl(), owner, repo, owner, headBranch);

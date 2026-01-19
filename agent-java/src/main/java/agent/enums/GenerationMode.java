@@ -16,25 +16,24 @@
 package agent.enums;
 
 /**
- * Execution mode for test generation.
- * Controls which strategy is used to generate UI tests.
+ * Execution mode for test generation. Controls which strategy is used to generate UI tests.
  */
 public enum GenerationMode {
-    /**
-     * Step-by-step mode (default): For each step, analyzes DOM and screenshot,
-     * executes in browser, captures new state. Most powerful and accurate.
-     */
-    STEP_BY_STEP,
+  /**
+   * Step-by-step mode (default): For each step, analyzes DOM and screenshot, executes in browser, captures new state.
+   * Most powerful and accurate.
+   */
+  STEP_BY_STEP,
 
-    /**
-     * Fast mode: Gets DOM once, generates complete test code in one LLM call.
-     * Faster but less accurate for complex interactions.
-     */
-    FAST,
+  /**
+   * Fast mode: Gets DOM once, generates complete test code in one LLM call. Faster but less accurate for complex
+   * interactions.
+   */
+  FAST,
 
-    /**
-     * Auto mode: Automatically selects appropriate mode based on test complexity.
-     * Uses FAST for simple tests (1-2 steps), STEP_BY_STEP for complex ones.
-     */
-    AUTO
+  /**
+   * Auto mode: Automatically selects appropriate mode based on test complexity. Uses FAST for simple tests (1-2 steps),
+   * STEP_BY_STEP for complex ones.
+   */
+  AUTO
 }

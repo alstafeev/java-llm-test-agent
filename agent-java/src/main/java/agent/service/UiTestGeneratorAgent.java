@@ -15,6 +15,7 @@
  */
 package agent.service;
 
+import agent.context.TestContextProvider;
 import agent.core.AgentProperties;
 import agent.model.GeneratedTestCode;
 import agent.model.TestExecutionResult;
@@ -42,14 +43,17 @@ public class UiTestGeneratorAgent {
 
   private final AgentTools tools;
   private final AgentProperties agentProperties;
+  private final TestContextProvider testContextProvider;
   private final int maxRepairAttempts;
 
   UiTestGeneratorAgent(
       AgentTools tools,
       AgentProperties agentProperties,
+      TestContextProvider testContextProvider,
       @Value("${agent.max-repair-attempts:3}") int maxRepairAttempts) {
     this.tools = tools;
     this.agentProperties = agentProperties;
+    this.testContextProvider = testContextProvider;
     this.maxRepairAttempts = maxRepairAttempts;
   }
 
@@ -151,7 +155,11 @@ public class UiTestGeneratorAgent {
       stepsFormatted.append(i + 1).append(". ").append(request.steps().get(i)).append("\n");
     }
 
-    return """
+    // Get existing tests as context for consistent style
+    String existingTestsContext = testContextProvider.getExistingTestsContext(3);
+    String patternsAnalysis = testContextProvider.analyzeTestPatterns();
+
+    String basePrompt = """
         Your goal is to write a single Java file containing a complete JUnit 5 test class named 'GeneratedTest'.
         
         Test Title: %s
@@ -175,8 +183,20 @@ public class UiTestGeneratorAgent {
             request.title(),
             stepsFormatted.toString(),
             request.url(),
-            dom)
-        .trim();
+            dom);
+
+    // Append existing tests context if available
+    if (!existingTestsContext.isEmpty()) {
+      basePrompt += "\n\n 10. **IMPORTANT**: Follow existing tests coding style and patterns.\n\n";
+      log.info("Including {} chars of existing tests context", existingTestsContext.length());
+      basePrompt += existingTestsContext;
+    }
+    if (!patternsAnalysis.isEmpty()) {
+      basePrompt += "\n\n Pattern Analysis";
+      basePrompt += patternsAnalysis;
+    }
+
+    return basePrompt.trim();
   }
 
   private String buildRepairPrompt(

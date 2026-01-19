@@ -2,6 +2,7 @@ package agent.service;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import agent.context.TestContextProvider;
 import agent.core.AgentProperties;
 import agent.model.GeneratedTestCode;
 import agent.model.TestGenerationRequest;
@@ -21,13 +22,17 @@ class UiTestGeneratorAgentTest {
 
   private AgentTools mockTools;
   private AgentProperties agentProperties;
+  private TestContextProvider mockContextProvider;
   private UiTestGeneratorAgent agent;
 
   @BeforeEach
   void setUp() {
     mockTools = Mockito.mock(AgentTools.class);
     agentProperties = new AgentProperties();
-    agent = new UiTestGeneratorAgent(mockTools, agentProperties, 3);
+    mockContextProvider = Mockito.mock(TestContextProvider.class);
+    Mockito.when(mockContextProvider.getExistingTestsContext(Mockito.anyInt())).thenReturn("");
+    Mockito.when(mockContextProvider.analyzeTestPatterns()).thenReturn("");
+    agent = new UiTestGeneratorAgent(mockTools, agentProperties, mockContextProvider, 3);
   }
 
   @Test

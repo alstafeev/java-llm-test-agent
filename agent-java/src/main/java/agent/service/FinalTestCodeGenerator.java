@@ -15,6 +15,7 @@
  */
 package agent.service;
 
+import agent.context.TestContextProvider;
 import agent.core.AgentProperties;
 import agent.model.GeneratedTestCode;
 import agent.model.PlaywrightInstruction;
@@ -41,6 +42,7 @@ import org.springframework.stereotype.Component;
 public class FinalTestCodeGenerator {
 
   private final AgentProperties agentProperties;
+  private final TestContextProvider testContextProvider;
 
   /**
    * Generates a complete JUnit 5 Playwright test class from executed steps.
@@ -128,7 +130,7 @@ public class FinalTestCodeGenerator {
     prompt.append("6. Add appropriate waits where needed (page.waitForLoadState())\n");
     prompt.append("7. Add comments explaining each step\n");
     prompt.append("8. Follow clean code principles\n");
-    prompt.append("9. Return ONLY Java code, no markdown formatting\n\n");
+    prompt.append("9. Return ONLY Java code, no markdown formatting\n");
 
     prompt.append("## Code Template Structure\n");
     prompt.append("```java\n");
@@ -148,6 +150,20 @@ public class FinalTestCodeGenerator {
     prompt.append("    }\n");
     prompt.append("}\n");
     prompt.append("```\n");
+
+    // Append existing tests context for consistency
+    String existingTestsContext = testContextProvider.getExistingTestsContext(2);
+    String patternsAnalysis = testContextProvider.analyzeTestPatterns();
+
+    if (!existingTestsContext.isEmpty()) {
+      prompt.append("\n\n 10. **IMPORTANT**: Follow existing tests coding style and patterns.\n\n");
+      log.info("Including {} chars of existing tests context", existingTestsContext.length());
+      prompt.append(existingTestsContext);
+    }
+    if (!patternsAnalysis.isEmpty()) {
+      prompt.append("\n\n Pattern Analysis");
+      prompt.append(patternsAnalysis);
+    }
 
     return prompt.toString();
   }
