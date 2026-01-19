@@ -178,7 +178,7 @@ public class TestContextProvider {
 
     try (Stream<Path> paths = Files.walk(testDir)) {
       List<Path> testFiles = paths
-          .filter(p -> p.toString().endsWith("Test.java"))
+          .filter(p -> p.toString().endsWith("Test.java") || p.toString().endsWith("Tests.java"))
           .filter(Files::isRegularFile)
           .toList();
 

@@ -106,10 +106,7 @@ public class StepByStepOrchestrator {
 
       if (!result.isSuccess()) {
         log.error("Step {} failed: {}", stepNum, result.getErrorMessage());
-        // Continue to try remaining steps or fail fast based on config
-        if (!agentProperties.getDebug().isShowPrompts()) { // Use as continue-on-failure flag
-          return createFailureResult(testCase, executedSteps, result);
-        }
+        // Continue to try remaining steps
       }
 
       executedSteps.add(result);
