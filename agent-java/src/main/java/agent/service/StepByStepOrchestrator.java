@@ -24,6 +24,7 @@ import agent.model.StepExecutionResult;
 import agent.model.TestCase;
 import agent.model.TestExecutionResult;
 import agent.model.TestResult;
+import agent.model.TestGenerationRequest;
 import agent.tools.AgentTools;
 import com.embabel.agent.api.annotation.Action;
 import com.embabel.agent.api.common.Ai;
@@ -51,6 +52,8 @@ public class StepByStepOrchestrator {
   private final FinalTestCodeGenerator codeGenerator;
   private final AgentTools agentTools;
   private final AgentProperties agentProperties;
+  private final StepCacheService stepCacheService;
+  private final UiTestGeneratorAgent uiTestGeneratorAgent;
 
   /**
    * Processes a test case step by step: 1. Opens the start URL and captures
@@ -72,6 +75,9 @@ public class StepByStepOrchestrator {
     List<StepExecutionResult> executedSteps = new ArrayList<>();
     List<PlaywrightInstruction> previousActions = new ArrayList<>();
     int totalSteps = testCase.steps().size();
+
+    // Keep track of used context for cache invalidation
+    List<StepExecutionContext> stepContexts = new ArrayList<>();
 
     // Step 1: Navigate to start URL
     log.info("Navigating to start URL: {}", startUrl);
@@ -99,8 +105,22 @@ public class StepByStepOrchestrator {
           .testCaseTitle(testCase.title())
           .build();
 
-      // Analyze step with LLM to get instruction
-      PlaywrightInstruction instruction = stepAnalyzerAgent.analyzeStep(context, ai);
+      stepContexts.add(context);
+
+      // Check Cache
+      PlaywrightInstruction instruction = stepCacheService.getInstruction(
+          stepDescription, currentState.currentUrl(), currentState.domSnapshot())
+          .orElse(null);
+
+      if (instruction == null) {
+          // Analyze step with LLM to get instruction if not cached
+          instruction = stepAnalyzerAgent.analyzeStep(context, ai);
+          // Cache the result
+          stepCacheService.cacheInstruction(
+              stepDescription, currentState.currentUrl(), currentState.domSnapshot(), instruction);
+      } else {
+        log.info("Used cached instruction for step: {}", stepDescription);
+      }
 
       // Execute instruction in browser
       StepExecutionResult result = instructionExecutor.execute(instruction, context);
@@ -121,18 +141,24 @@ public class StepByStepOrchestrator {
     log.info("All steps processed. Generating final test code...");
     GeneratedTestCode generatedCode = codeGenerator.generate(testCase, executedSteps, startUrl, ai);
 
-    // Step 4: Run and validate the generated test
-    log.info("Running generated test...");
-    TestResult testResult = agentTools.runTest(generatedCode.sourceCode());
+    // Step 4: Run and validate the generated test with repair loop
+    log.info("Running and verifying generated test...");
 
-    if (testResult.isSuccess()) {
-      log.info("Generated test passed! Saving to file...");
-      agentTools.saveGeneratedTest(testCase.title(), generatedCode.sourceCode());
-    } else {
-      log.warn("Generated test failed. May need manual adjustment.");
+    // Create request for repair agent
+    TestGenerationRequest request = new TestGenerationRequest(
+        testCase.title(), testCase.steps(), startUrl);
+
+    // Delegate to UiTestGeneratorAgent for run and repair logic
+    TestExecutionResult finalResult = uiTestGeneratorAgent.runAndRepair(generatedCode, request, ai);
+
+    if (!finalResult.result().isSuccess()) {
+      log.warn("Generated test failed even after repairs. Invalidating cache for this flow.");
+      for (StepExecutionContext ctx : stepContexts) {
+        stepCacheService.invalidate(ctx.getStepDescription(), ctx.getCurrentUrl(), ctx.getDomSnapshot());
+      }
     }
 
-    return new TestExecutionResult(generatedCode, testResult, testCase.title());
+    return finalResult;
   }
 
   /**
