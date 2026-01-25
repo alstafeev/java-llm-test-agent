@@ -45,6 +45,33 @@ public class AgentProperties {
   private AllureProperties allure = new AllureProperties();
   private Git git = new Git();
   private GitHub github = new GitHub();
+  private Cache cache = new Cache();
+
+  @Data
+  public static class Cache {
+    private CacheType type = CacheType.FILE;
+    private Redis redis = new Redis();
+    private Postgres postgres = new Postgres();
+
+    public enum CacheType {
+      FILE, REDIS, POSTGRES
+    }
+
+    @Data
+    public static class Redis {
+      private String host = "localhost";
+      private int port = 6379;
+      private String password;
+    }
+
+    @Data
+    public static class Postgres {
+      private String url = "jdbc:postgresql://localhost:5432/testagent";
+      private String username = "postgres";
+      private String password = "password";
+      private String schema = "public";
+    }
+  }
 
   @Data
   public static class Browser {

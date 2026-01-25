@@ -16,65 +16,37 @@
 package agent.service;
 
 import agent.model.PlaywrightInstruction;
-import agent.core.AgentProperties;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.io.IOException;
+import agent.service.cache.CacheProvider;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
  * Service for caching analyzed Playwright instructions to save LLM tokens.
- * Persists cache to a local file.
+ * Delegates storage to a configured CacheProvider.
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class StepCacheService {
 
-  private final AgentProperties agentProperties;
-  private final ObjectMapper objectMapper;
-
-  // In-memory cache: Key -> PlaywrightInstruction
-  private final Map<String, PlaywrightInstruction> cache = new HashMap<>();
-  private File cacheFile;
-
-  @PostConstruct
-  public void init() {
-    String cacheDir = "cache";
-    File dir = new File(cacheDir);
-    if (!dir.exists()) {
-      dir.mkdirs();
-    }
-    this.cacheFile = new File(dir, "step_cache.json");
-    loadCache();
-  }
-
-  @PreDestroy
-  public void shutdown() {
-    saveCache();
-  }
+  private final CacheProvider cacheProvider;
 
   /**
    * Retrieves a cached instruction if available.
    */
   public Optional<PlaywrightInstruction> getInstruction(String stepDescription, String url, String domSnapshot) {
     String key = generateKey(stepDescription, url, domSnapshot);
-    if (cache.containsKey(key)) {
+    Optional<PlaywrightInstruction> result = cacheProvider.get(key);
+    if (result.isPresent()) {
       log.debug("Cache HIT for step: {}", stepDescription);
-      return Optional.of(cache.get(key));
+    } else {
+      log.debug("Cache MISS for step: {}", stepDescription);
     }
-    log.debug("Cache MISS for step: {}", stepDescription);
-    return Optional.empty();
+    return result;
   }
 
   /**
@@ -82,27 +54,16 @@ public class StepCacheService {
    */
   public void cacheInstruction(String stepDescription, String url, String domSnapshot, PlaywrightInstruction instruction) {
     String key = generateKey(stepDescription, url, domSnapshot);
-    cache.put(key, instruction);
-    // Auto-save periodically or on every write could be done here,
-    // but for performance we'll stick to shutdown save or explicit save.
-    // For robustness in this agent, let's save immediately to avoid data loss on crash.
-    saveCache();
+    cacheProvider.put(key, instruction);
   }
 
   /**
    * Invalidates cache entries associated with specific steps.
-   * Since we only have the key hash, we might need to invalidate by re-computing keys
-   * OR clear everything if specific invalidation is too hard.
-   *
-   * For the requirement "invalidate cache for used steps", the caller will provide the
-   * same context (description, url, dom) that was used to generate the key.
    */
   public void invalidate(String stepDescription, String url, String domSnapshot) {
     String key = generateKey(stepDescription, url, domSnapshot);
-    if (cache.remove(key) != null) {
-      log.info("Invalidated cache for step: {}", stepDescription);
-      saveCache();
-    }
+    log.info("Invalidating cache for step: {}", stepDescription);
+    cacheProvider.invalidate(key);
   }
 
   private String generateKey(String stepDescription, String url, String domSnapshot) {
@@ -129,28 +90,5 @@ public class StepCacheService {
       hexString.append(hex);
     }
     return hexString.toString();
-  }
-
-  private void loadCache() {
-    if (cacheFile.exists()) {
-      try {
-        TypeReference<HashMap<String, PlaywrightInstruction>> typeRef =
-            new TypeReference<HashMap<String, PlaywrightInstruction>>() {};
-        Map<String, PlaywrightInstruction> loaded = objectMapper.readValue(cacheFile, typeRef);
-        cache.putAll(loaded);
-        log.info("Loaded {} items from step cache", loaded.size());
-      } catch (IOException e) {
-        log.warn("Failed to load step cache: {}", e.getMessage());
-      }
-    }
-  }
-
-  private void saveCache() {
-    try {
-      objectMapper.writeValue(cacheFile, cache);
-      log.debug("Saved step cache to disk");
-    } catch (IOException e) {
-      log.error("Failed to save step cache", e);
-    }
   }
 }
