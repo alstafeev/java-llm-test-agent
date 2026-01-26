@@ -88,6 +88,22 @@ mvn spring-boot:run
 
 # In shell:
 run-step-by-step --steps "Click login, Enter username" --url "https://example.com"
+
+# Run from Allure TestOps:
+run-tms --tms-type allure
+```
+
+To configure Allure TestOps parameters via environment variables:
+
+```bash
+export AGENT_ALLURE_PROJECT=1
+export AGENT_ALLURE_RQL='status="Active"'
+```
+
+Or via command line arguments:
+
+```bash
+mvn spring-boot:run -Dagent.allure.project=1 -Dagent.allure.rql='status="Active"'
 ```
 
 #### REST API
