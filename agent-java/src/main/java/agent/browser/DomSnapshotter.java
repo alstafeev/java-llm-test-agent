@@ -9,6 +9,11 @@ public class DomSnapshotter {
     // A simplified version for LLMs to avoid token limit issues.
     // Enhanced with pruning logic based on AgentProperties.
 
+    java.util.Map<String, Object> configMap = java.util.Map.of(
+        "skipStyles", domConfig.isSkipStyles(),
+        "skipScripts", domConfig.isSkipScripts(),
+        "interactiveOnly", domConfig.isInteractiveOnly());
+
     return (String) page.evaluate("(config) => {" +
         "  const { skipStyles, skipScripts, interactiveOnly } = config;" +
         "  const walk = (node) => {" +
@@ -47,7 +52,7 @@ public class DomSnapshotter {
         "    };" +
         "  };" +
         "  return JSON.stringify(walk(document.body), null, 2);" +
-        "}", domConfig);
+        "}", configMap);
   }
 
   public static String getDomSnapshotForRetry(Page page) {
