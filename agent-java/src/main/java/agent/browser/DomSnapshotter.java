@@ -27,18 +27,18 @@ public class DomSnapshotter {
         "    if (skipStyles && node.tagName === 'STYLE') return null;" +
         "    if (skipScripts && (node.tagName === 'SCRIPT' || node.tagName === 'NOSCRIPT')) return null;" +
         "    " +
-        "    const isInteractiveElement = node.tagName === 'A' || node.tagName === 'BUTTON' || " +
-        "                                 node.tagName === 'INPUT' || node.tagName === 'SELECT' || " +
-        "                                 node.tagName === 'TEXTAREA' || node.hasAttribute('onclick') ||" +
-        "                                 (window.getComputedStyle(node).cursor === 'pointer' && node.tagName !== 'BODY' && node.tagName !== 'HTML');"
-        +
-        "    " +
         "    const children = Array.from(node.childNodes)" +
         "      .map(walk)" +
         "      .filter(c => c !== null && c !== '');" +
         "    " +
-        "    if (interactiveOnly && !isInteractiveElement && children.length === 0) {" +
-        "      return null;" +
+        "    if (interactiveOnly && children.length === 0) {" +
+        "      const isInteractiveElement = node.tagName === 'A' || node.tagName === 'BUTTON' || " +
+        "                                   node.tagName === 'INPUT' || node.tagName === 'SELECT' || " +
+        "                                   node.tagName === 'TEXTAREA' || node.hasAttribute('onclick') ||" +
+        "                                   (window.getComputedStyle(node).cursor === 'pointer' && node.tagName !== 'BODY' && node.tagName !== 'HTML');" +
+        "      if (!isInteractiveElement) {" +
+        "        return null;" +
+        "      }" +
         "    }" +
         "    " +
         "    const attrs = {};" +
