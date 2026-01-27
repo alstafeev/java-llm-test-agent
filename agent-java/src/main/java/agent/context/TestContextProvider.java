@@ -92,13 +92,15 @@ public class TestContextProvider {
     try (Stream<Path> paths = Files.walk(testDir)) {
       paths.filter(p -> p.toString().endsWith("Test.java"))
           .filter(Files::isRegularFile)
-          .sorted(Comparator.comparing((Path p) -> {
+          .map(p -> {
             try {
-              return Files.getLastModifiedTime(p).toMillis();
+              return new PathWithTime(p, Files.getLastModifiedTime(p).toMillis());
             } catch (IOException e) {
-              return 0L;
+              return new PathWithTime(p, 0L);
             }
-          }).reversed()) // Most recent first
+          })
+          .sorted(Comparator.comparingLong(PathWithTime::time).reversed()) // Most recent first
+          .map(PathWithTime::path)
           .limit(maxExamples)
           .forEach(path -> {
             try {
@@ -221,5 +223,11 @@ public class TestContextProvider {
    */
   private record TestExample(String fileName, String content) {
 
+  }
+
+  /**
+   * Helper record for sorting paths by modification time.
+   */
+  private record PathWithTime(Path path, long time) {
   }
 }
