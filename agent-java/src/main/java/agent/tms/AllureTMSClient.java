@@ -28,6 +28,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -104,23 +107,27 @@ public class AllureTMSClient implements TMSClient {
     JsonNode root = objectMapper.readTree(response.body());
     JsonNode content = root.path("content");
 
-    List<TestCase> testCases = new ArrayList<>();
     int totalElements = root.path("totalElements").asInt(0);
     log.info("Found {} test cases", totalElements);
+
+    List<CompletableFuture<TestCase>> futures = new ArrayList<>();
 
     for (JsonNode tc : content) {
       long tcId = tc.path("id").asLong();
       String tcName = tc.path("name").asText("Unnamed Test Case");
 
       try {
-        TestCase testCase = fetchTestCaseWithSteps(tcId, tcName);
-        testCases.add(testCase);
+        futures.add(fetchTestCaseWithStepsAsync(tcId, tcName));
       } catch (Exception e) {
-        log.warn("Failed to fetch details for test case {}: {}", tcId, e.getMessage());
-        // Add test case without steps
-        testCases.add(new TestCase(tcName, List.of()));
+        log.warn("Failed to initiate fetch for test case {}: {}", tcId, e.getMessage());
+        futures.add(CompletableFuture.completedFuture(new TestCase(tcName, List.of())));
       }
     }
+
+    // Wait for all futures to complete
+    List<TestCase> testCases = futures.stream()
+        .map(CompletableFuture::join)
+        .collect(Collectors.toList());
 
     log.info("Successfully fetched {} test cases with steps", testCases.size());
     return testCases;
@@ -141,16 +148,43 @@ public class AllureTMSClient implements TMSClient {
   }
 
   private TestCase fetchTestCaseWithSteps(long tcId, String tcName) throws Exception {
-    log.debug("Fetching steps for test case {}: {}", tcId, tcName);
+      try {
+          return fetchTestCaseWithStepsAsync(tcId, tcName).get();
+      } catch (ExecutionException e) {
+          if (e.getCause() instanceof Exception) {
+              throw (Exception) e.getCause();
+          }
+          throw new RuntimeException(e.getCause());
+      }
+  }
 
-    // Use the new non-deprecated endpoint: /api/testcase/{id}/step
+  private CompletableFuture<TestCase> fetchTestCaseWithStepsAsync(long tcId, String tcName) {
     String stepsUrl = String.format("%s/api/testcase/%d/step", baseUrl, tcId);
 
-    List<String> steps = new ArrayList<>();
+    return fetchJsonAsync(stepsUrl)
+        .handle((json, ex) -> {
+          if (ex != null) {
+            log.warn("Could not fetch steps for test case {}, trying fallback: {}", tcId, ex.getMessage());
+            String scenarioUrl = String.format("%s/api/testcase/%d/scenario", baseUrl, tcId);
+            return fetchJsonAsync(scenarioUrl);
+          }
+          return CompletableFuture.completedFuture(json);
+        })
+        .thenCompose(future -> future)
+        .handle((json, ex) -> {
+            List<String> steps = new ArrayList<>();
+            if (ex != null) {
+                log.warn("Failed to fetch details for test case {}: {}", tcId, ex.getMessage());
+                // Return test case without steps
+            } else {
+                steps = parseSteps(json);
+            }
+            return new TestCase(tcName, steps);
+        });
+  }
 
-    try {
-      JsonNode stepsNode = fetchJson(stepsUrl);
-
+  private List<String> parseSteps(JsonNode stepsNode) {
+      List<String> steps = new ArrayList<>();
       // NormalizedScenarioDto contains "steps" array
       JsonNode stepsArray = stepsNode.path("steps");
       if (stepsArray.isArray()) {
@@ -174,33 +208,21 @@ public class AllureTMSClient implements TMSClient {
           }
         }
       }
-    } catch (Exception e) {
-      log.warn("Could not fetch steps for test case {}, trying fallback: {}", tcId, e.getMessage());
-
-      // Fallback to deprecated /api/testcase/{id}/scenario endpoint
-      try {
-        String scenarioUrl = String.format("%s/api/testcase/%d/scenario", baseUrl, tcId);
-        JsonNode scenarioNode = fetchJson(scenarioUrl);
-
-        JsonNode stepsArray = scenarioNode.path("steps");
-        if (stepsArray.isArray()) {
-          for (JsonNode step : stepsArray) {
-            String stepName = step.path("name").asText("");
-            if (!stepName.isEmpty()) {
-              steps.add(stepName);
-            }
-          }
-        }
-      } catch (Exception fallbackE) {
-        log.warn("Fallback also failed for test case {}: {}", tcId, fallbackE.getMessage());
-      }
-    }
-
-    log.debug("Test case {} has {} steps", tcId, steps.size());
-    return new TestCase(tcName, steps);
+      return steps;
   }
 
   private JsonNode fetchJson(String url) throws Exception {
+      try {
+          return fetchJsonAsync(url).get();
+      } catch (ExecutionException e) {
+          if (e.getCause() instanceof Exception) {
+              throw (Exception) e.getCause();
+          }
+          throw new RuntimeException(e.getCause());
+      }
+  }
+
+  private CompletableFuture<JsonNode> fetchJsonAsync(String url) {
     HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create(url))
         .header("Authorization", "Api-Token " + apiToken)
@@ -209,13 +231,17 @@ public class AllureTMSClient implements TMSClient {
         .GET()
         .build();
 
-    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-    if (response.statusCode() != 200) {
-      log.error("Allure API request failed: {} - {}", response.statusCode(), url);
-      throw new RuntimeException("Allure API error: " + response.statusCode());
-    }
-
-    return objectMapper.readTree(response.body());
+    return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+        .thenApply(response -> {
+            if (response.statusCode() != 200) {
+                log.error("Allure API request failed: {} - {}", response.statusCode(), url);
+                throw new RuntimeException("Allure API error: " + response.statusCode());
+            }
+            try {
+                return objectMapper.readTree(response.body());
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to parse JSON", e);
+            }
+        });
   }
 }
