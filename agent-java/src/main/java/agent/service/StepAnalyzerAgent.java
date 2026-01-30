@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
 public class StepAnalyzerAgent {
 
   private final AgentProperties agentProperties;
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper;
 
   /**
    * Analyzes the current step and page state to generate a Playwright
