@@ -71,7 +71,18 @@ public class StepAnalyzerAgent {
   }
 
   private String buildAnalysisPrompt(StepExecutionContext context) {
-    StringBuilder prompt = new StringBuilder();
+    int initialCapacity = 4096; // Buffer for static text
+    if (context.getDomSnapshot() != null) {
+      initialCapacity += context.getDomSnapshot().length();
+    }
+    if (context.getScreenshotBase64() != null) {
+      initialCapacity += context.getScreenshotBase64().length();
+    }
+    if (context.getPreviousActions() != null) {
+      initialCapacity += context.getPreviousActions().size() * 200; // Estimate per action
+    }
+
+    StringBuilder prompt = new StringBuilder(initialCapacity);
 
     prompt.append("## Task\n");
     prompt.append("Analyze the current page state and determine the exact Playwright action ");
